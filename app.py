@@ -3,7 +3,7 @@ import scipy.io
 import pandas as pd
 import numpy as np
 import altair as alt
-from datetime import date, timedelta
+from datetime import date, timedelta, datetime
 import plotly.graph_objs as go
 
 st.set_page_config(page_title='PS-InSAR StAMPS Visualizer') #, layout='wide')
@@ -125,11 +125,26 @@ def main():
 	if len(multiselection) == 0:
 	    return 
 
+	highlight = alt.selection_single(on='mouseover', fields=['Date'], nearest=True)
+	
+	def to_altair_datetime(dt):
+	    dt = pd.to_datetime(dt) - timedelta(60)
+	    return alt.DateTime(year=dt.year, month=dt.month, date=dt.day,
+	                        hours=dt.hour, minutes=dt.minute, seconds=dt.second,
+	                        milliseconds=0.001 * dt.microsecond)
+	
+	domain = [to_altair_datetime(df.Date.unique().min() - timedelta(60)), 
+			to_altair_datetime(df.Date.unique().max() + timedelta(120))]
+
 	altC = alt.Chart(filtered_df).mark_line(point=True).encode(
-		x=alt.X('Date:T'),
-		y=alt.Y('Displacement:Q', title='Displacement (mm)'), 
+		x=alt.X('Date:T', scale=alt.Scale(domain=domain, clamp=True)),
+		y=alt.Y('Displacement:Q', title='Displacement (mm)', 
+			scale=alt.Scale(domain=[filtered_df.Displacement.min()-5, filtered_df.Displacement.max()+5], 
+				clamp=True)), 
 		color=alt.Color('ps:N', legend=alt.Legend(title="PS ID")),
-		tooltip=[alt.Tooltip('Date:T'), alt.Tooltip('Displacement:Q', format=',.2f', title='Disp')]).interactive()
+		tooltip=[alt.Tooltip('Date:T'), 
+				alt.Tooltip('Displacement:Q', format=',.2f', title='Disp')]
+				).add_selection(highlight)
 
 	st.altair_chart(altC, use_container_width=True)
 
