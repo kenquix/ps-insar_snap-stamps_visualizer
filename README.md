@@ -1,4 +1,4 @@
-# ps-insar_visualizer
+# PS-InSAR SNAP-StAMPS Workflow Visualizer
 
 A simple web app to visualize the Persistent Scatterers (PS) identified using the [SNAP - StAMPS workflow](https://forum.step.esa.int/t/snap-stamps-workflow-documentation/13985). You can **visualize your own data** by uploading the Matlab file *(e.g., 'ps_plot_ts_v-do.mat')*. 
 
