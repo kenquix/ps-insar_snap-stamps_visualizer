@@ -6,6 +6,6 @@ This is inspired by the [StAMPS visualizer based on R](https://forum.step.esa.in
 
 Access the web app [here](https://snap-stamps-visualizer-app.herokuapp.com/).
 
-![image](https://user-images.githubusercontent.com/44670454/122633444-4d7fd200-d10b-11eb-88d0-4b7b6fbb25dc.png)
-![image](https://user-images.githubusercontent.com/44670454/122633473-799b5300-d10b-11eb-9c05-c6d825d700d8.png)
+![image](https://user-images.githubusercontent.com/44670454/122637236-1536be80-d120-11eb-9c52-e8853015bb03.png)
+![image](https://user-images.githubusercontent.com/44670454/122637241-21bb1700-d120-11eb-9af1-4f6ec2baca85.png)
 
