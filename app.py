@@ -36,7 +36,9 @@ def main():
 		""")
 
 	st.sidebar.subheader('Customization Panel')
-	n = st.slider('Select number of points to plot', min_value=10, max_value=1000)
+	a1, a2 = st.beta_columns((5,3))
+	nmax = a2.number_input('Configure max number of points', min_value=100, max_value=50000, value=1000)
+	n = a1.slider('Select number of points to plot', min_value=100, max_value=nmax)
 
 	inputFile = st.sidebar.file_uploader('Upload a file', type=('mat'))
 
@@ -54,7 +56,9 @@ def main():
 	colorscale = st.sidebar.selectbox('Select color scale', ['Greys','YlGnBu','Greens','YlOrRd','Bluered','RdBu','Reds','Blues','Picnic',
 		'Rainbow','Portland','Jet','Hot','Blackbody','Earth','Electric','Viridis','Cividis'])
 
-	selectdate = st.sidebar.select_slider('Select Date', df.Date.unique().tolist())
+	msize = st.sidebar.slider('Select marker size', min_value=2, max_value=15, value=5, step=1)
+
+	selectdate = st.sidebar.select_slider('Select Date', df.Date.unique().tolist(), value=df.Date.unique().tolist()[3])
 	mapbox_df = df[df.Date.isin([selectdate])]
 
 	multiselection = st.sidebar.multiselect('Select PS', df.ps.unique().tolist(), 
@@ -65,14 +69,15 @@ def main():
 	with st.beta_expander('Descriptive Statistics'):
 		st.text(f'Displacement values (mm) of selected points on {selectdate} (n = {len(mapbox_df)})')
 		a1, a2, a3 = st.beta_columns(3)
-		n = st.slider('Select bin width', min_value=1, max_value=10)
+		n = st.slider('Select bin width', min_value=1, max_value=10, value=1)
 		a1.info(f'Highest: {mapbox_df.Displacement.max():0.2f}')
 		a2.info(f'Lowest: {mapbox_df.Displacement.min():0.2f}')
 		a3.info(f'Average: {mapbox_df.Displacement.mean():0.2f}')
 
 		altHist = alt.Chart(mapbox_df).mark_bar().encode(
 			x=alt.X('Displacement:Q', bin=alt.Bin(step=n), title='Displacement (mm)'),
-			y='count()', 
+			y='count()',
+			color=alt.Color('count()', legend=None), # scale=alt.Scale(scheme='Pastel2')
 			tooltip=[alt.Tooltip('count()', format=',.0f', title='Count')])
 
 		st.altair_chart(altHist, use_container_width=True)
@@ -80,10 +85,10 @@ def main():
 	data = go.Scattermapbox(name='', lat=mapbox_df.lat, lon=mapbox_df.lon, 
 		hovertemplate='%{text} mm', 
 		mode='markers',
-		marker=dict(size=10, opacity=.8, color=mapbox_df.Displacement.values, colorscale=colorscale,
+		marker=dict(size=msize, opacity=.8, color=mapbox_df.Displacement.values, colorscale=colorscale,
 			colorbar=dict(thicknessmode='pixels', 
 				title=dict(text='Displacement (mm)', side='right'))), 
-		text=mapbox_df.Displacement.values) # , selected=dict(marker=dict(color='rgb(255,0,0)', size=14, opacity=.8))
+		text=mapbox_df.Displacement.values) # , selected=dict(marker=dict(color='rgb(255,0,0)', size=msize, opacity=.8))
 	
 	layout = go.Layout(width=950, height=500, 
 		mapbox = dict(center= dict(lat=(mapbox_df.lat.max() + mapbox_df.lat.min())/2, 
@@ -102,7 +107,7 @@ def main():
 		text=filtered_df[filtered_df.Date.isin([selectdate])].Displacement.values, 
 		mode='markers',
 		hovertemplate='%{text} mm (Selected)', 
-		marker=dict(size=12, color='#B22222', opacity=.8)
+		marker=dict(size=msize+5, color='#B22222', opacity=.8)
 		))
 
 	fig.add_trace(go.Scattermapbox(name='', 
@@ -110,7 +115,7 @@ def main():
 		lon=[mapbox_df.iloc[np.argmin(mapbox_df.Displacement)].lon],
 		mode='markers',
 		hovertemplate=f'{mapbox_df.Displacement.min()} mm (Lowest)', 
-		marker=dict(size=12, color='#FF4500', opacity=.8)
+		marker=dict(size=msize+5, color='#FF4500', opacity=.8)
 		))
 
 	fig.add_trace(go.Scattermapbox(name='', 
@@ -118,7 +123,7 @@ def main():
 		lon=[mapbox_df.iloc[np.argmax(mapbox_df.Displacement)].lon],
 		mode='markers',
 		hovertemplate=f'{mapbox_df.Displacement.max()} mm (Highest)', 
-		marker=dict(size=12, color='#FF4500', opacity=.8)
+		marker=dict(size=msize+5, color='#FF4500', opacity=.8)
 		))
 
 	st.plotly_chart(fig, use_container_width=True)
