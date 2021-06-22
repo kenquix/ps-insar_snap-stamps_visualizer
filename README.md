@@ -6,7 +6,7 @@ This is inspired by the [StAMPS visualizer based on R](https://forum.step.esa.in
 
 Access the web app [here](https://snap-stamps-visualizer-app.herokuapp.com/).
 
-You can run this locally by installing [Anaconda](https://www.anaconda.com/products/individual#download-section). After installing Anaconda, open the **Anaconda command prompt** to create a new virtual environment and install the required libraries
+You can run this locally by installing [Anaconda](https://www.anaconda.com/products/individual#download-section). After installing Anaconda, open the **Anaconda command prompt** to create a new virtual environment and install the required libraries.
 
     conda create -n snap-stamps-viz
     conda activate snap-stamps-viz
