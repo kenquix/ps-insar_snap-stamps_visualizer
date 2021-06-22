@@ -12,7 +12,7 @@ You can run this locally by installing [Anaconda](https://www.anaconda.com/produ
     conda activate snap-stamps-viz
     conda install --file requirements.txt
     
- After installing the required libraries, you can run the app in the terminal
+ After installing the required libraries, you can run the app in the terminal.
     
     streamlit run app.py
  
