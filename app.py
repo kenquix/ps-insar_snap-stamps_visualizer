@@ -60,15 +60,15 @@ def main():
 	filtered_df = df[df['ps'].isin(multiselection)]
 	
 	with st.beta_expander('Descriptive Statistics'):
-		st.text(f'Displacement values (mm/yr) of selected points (n = {len(mapbox_df)})')
+		st.text(f'Displacement values (mm) of selected points on {selectdate} (n = {len(mapbox_df)})')
 		a1, a2, a3 = st.beta_columns(3)
 		n = st.slider('Select bin width', min_value=1, max_value=10)
-		a1.info(f'Highest: {mapbox_df.ave.max():0.2f}')
-		a2.info(f'Lowest: {mapbox_df.ave.min():0.2f}')
-		a3.info(f'Average: {mapbox_df.ave.mean():0.2f}')
+		a1.info(f'Highest: {mapbox_df.Displacement.max():0.2f}')
+		a2.info(f'Lowest: {mapbox_df.Displacement.min():0.2f}')
+		a3.info(f'Average: {mapbox_df.Displacement.mean():0.2f}')
 
 		altHist = alt.Chart(mapbox_df).mark_bar().encode(
-			x=alt.X('ave:Q', bin=alt.Bin(step=n), title='Average Displacement (mm/yr)'),
+			x=alt.X('Displacement:Q', bin=alt.Bin(step=n), title='Displacement (mm)'),
 			y='count()', 
 			tooltip=[alt.Tooltip('count()', format=',.0f', title='Count')]
 			)
@@ -76,12 +76,12 @@ def main():
 		st.altair_chart(altHist, use_container_width=True)
 
 	data = go.Scattermapbox(name='', lat=mapbox_df.lat, lon=mapbox_df.lon, 
-		hovertemplate='%{text} mm/yr', 
+		hovertemplate='%{text} mm', 
 		mode='markers',
-		marker=dict(size=10, opacity=.8, color=mapbox_df.ave.values, colorscale='YlGnBu',
+		marker=dict(size=10, opacity=.8, color=mapbox_df.Displacement.values, colorscale='YlGnBu',
 			colorbar=dict(thicknessmode='pixels', 
-				title=dict(text='Displacement (mm/yr)', side='right'))), 
-		text=mapbox_df.ave.values) # , selected=dict(marker=dict(color='rgb(255,0,0)', size=14, opacity=.8))
+				title=dict(text='Displacement (mm)', side='right'))), 
+		text=mapbox_df.Displacement.values) # , selected=dict(marker=dict(color='rgb(255,0,0)', size=14, opacity=.8))
 	
 	layout = go.Layout(width=950, height=500, 
 		mapbox = dict(center= dict(lat=(mapbox_df.lat.max() + mapbox_df.lat.min())/2, 
@@ -97,25 +97,25 @@ def main():
 	fig.add_trace(go.Scattermapbox(name='', 
 		lat=filtered_df[filtered_df.Date.isin([selectdate])].lat, 
 		lon=filtered_df[filtered_df.Date.isin([selectdate])].lon,
-		text=filtered_df[filtered_df.Date.isin([selectdate])].ave.values, 
+		text=filtered_df[filtered_df.Date.isin([selectdate])].Displacement.values, 
 		mode='markers',
-		hovertemplate='%{text} mm/yr (Selected)', 
+		hovertemplate='%{text} mm (Selected)', 
 		marker=dict(size=12, color='#B22222', opacity=.8)
 		))
 
 	fig.add_trace(go.Scattermapbox(name='', 
-		lat=[mapbox_df.iloc[np.argmin(mapbox_df.ave)].lat],
-		lon=[mapbox_df.iloc[np.argmin(mapbox_df.ave)].lon],
+		lat=[mapbox_df.iloc[np.argmin(mapbox_df.Displacement)].lat],
+		lon=[mapbox_df.iloc[np.argmin(mapbox_df.Displacement)].lon],
 		mode='markers',
-		hovertemplate=f'{mapbox_df.ave.min()} mm/yr (Lowest)', 
+		hovertemplate=f'{mapbox_df.Displacement.min()} mm (Lowest)', 
 		marker=dict(size=12, color='#FF4500', opacity=.8)
 		))
 
 	fig.add_trace(go.Scattermapbox(name='', 
-		lat=[mapbox_df.iloc[np.argmax(mapbox_df.ave)].lat],
-		lon=[mapbox_df.iloc[np.argmax(mapbox_df.ave)].lon],
+		lat=[mapbox_df.iloc[np.argmax(mapbox_df.Displacement)].lat],
+		lon=[mapbox_df.iloc[np.argmax(mapbox_df.Displacement)].lon],
 		mode='markers',
-		hovertemplate=f'{mapbox_df.ave.max()} mm/yr (Highest)', 
+		hovertemplate=f'{mapbox_df.Displacement.max()} mm (Highest)', 
 		marker=dict(size=12, color='#FF4500', opacity=.8)
 		))
 
