@@ -37,8 +37,8 @@ def main():
 
 	st.sidebar.subheader('Customization Panel')
 	a1, a2 = st.beta_columns((5,3))
-	nmax = a2.number_input('Configure max number of points', min_value=100, max_value=50000, value=1000)
-	n = a1.slider('Select number of points to plot', min_value=100, max_value=nmax)
+	nmax = a2.number_input('Configure max number of points', min_value=100, max_value=50000, value=10000)
+	n = a1.slider('Select number of points to plot', min_value=100, max_value=nmax, value=5000)
 
 	inputFile = st.sidebar.file_uploader('Upload a file', type=('mat'))
 
@@ -51,10 +51,10 @@ def main():
 		'Stamen Terrain':'stamen-terrain', 'Stamen Toner':'stamen-toner', 'Stamen Watercolor':'stamen-watercolor'}
 
 	style = st.sidebar.selectbox('Select map style', ['Carto-Positron', 'Openstreetmap', 'Carto Dark', 
-		'Stamen Terrain', 'Stamen Toner', 'Stamen Watercolor']) 
+		'Stamen Terrain', 'Stamen Toner', 'Stamen Watercolor'], index=2) 
 
 	colorscale = st.sidebar.selectbox('Select color scale', ['Greys','YlGnBu','Greens','YlOrRd','Bluered','RdBu','Reds','Blues','Picnic',
-		'Rainbow','Portland','Jet','Hot','Blackbody','Earth','Electric','Viridis','Cividis'])
+		'Rainbow','Portland','Jet','Hot','Blackbody','Earth','Electric','Viridis','Cividis'], index=4)
 
 	msize = st.sidebar.slider('Select marker size', min_value=2, max_value=15, value=5, step=1)
 
