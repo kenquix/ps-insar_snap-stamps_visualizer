@@ -51,6 +51,9 @@ def main():
 	style = st.sidebar.selectbox('Select map style', ['Carto-Positron', 'Openstreetmap', 'Carto Dark', 
 		'Stamen Terrain', 'Stamen Toner', 'Stamen Watercolor']) 
 
+	colorscale = st.sidebar.selectbox('Select color scale', ['Greys','YlGnBu','Greens','YlOrRd','Bluered','RdBu','Reds','Blues','Picnic',
+		'Rainbow','Portland','Jet','Hot','Blackbody','Earth','Electric','Viridis','Cividis'])
+
 	selectdate = st.sidebar.select_slider('Select Date', df.Date.unique().tolist())
 	mapbox_df = df[df.Date.isin([selectdate])]
 
@@ -70,15 +73,14 @@ def main():
 		altHist = alt.Chart(mapbox_df).mark_bar().encode(
 			x=alt.X('Displacement:Q', bin=alt.Bin(step=n), title='Displacement (mm)'),
 			y='count()', 
-			tooltip=[alt.Tooltip('count()', format=',.0f', title='Count')]
-			)
+			tooltip=[alt.Tooltip('count()', format=',.0f', title='Count')])
 
 		st.altair_chart(altHist, use_container_width=True)
 
 	data = go.Scattermapbox(name='', lat=mapbox_df.lat, lon=mapbox_df.lon, 
 		hovertemplate='%{text} mm', 
 		mode='markers',
-		marker=dict(size=10, opacity=.8, color=mapbox_df.Displacement.values, colorscale='YlGnBu',
+		marker=dict(size=10, opacity=.8, color=mapbox_df.Displacement.values, colorscale=colorscale,
 			colorbar=dict(thicknessmode='pixels', 
 				title=dict(text='Displacement (mm)', side='right'))), 
 		text=mapbox_df.Displacement.values) # , selected=dict(marker=dict(color='rgb(255,0,0)', size=14, opacity=.8))
