@@ -18,7 +18,7 @@ def read_data(fn, n=100):
 	df['ave'] = df.iloc[:,0:6].mean(axis=1).apply(lambda x: round(x, 2))
 	df = df.reset_index().sample(n)
 	df = pd.melt(df, id_vars=['lon', 'lat', 'ave', 'index'], 
-		value_vars=[736673, 736841, 737165, 737921, 738185, 738293],
+		value_vars=df.columns[1:-3].tolist(),
 		var_name='Date')
 	df.Date = [date(1,1,1) + timedelta(i) - timedelta (367) for i in df.Date]		
 	df = df.rename(columns={'index':'ps', 'value': 'Displacement'})
