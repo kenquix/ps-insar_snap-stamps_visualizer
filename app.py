@@ -61,11 +61,11 @@ def main():
 	selectdate = st.sidebar.select_slider('Select Date', df.Date.unique().tolist(), value=df.Date.unique().tolist()[3])
 	mapbox_df = df[df.Date.isin([selectdate])]
 
-	multiselection = st.sidebar.multiselect('Select PS', df.ps.unique().tolist(), 
+	multiselection = st.sidebar.multiselect('Select PS', sorted(df.ps.unique().tolist()), 
 		default=df.ps.unique().tolist()[:2])
 
 	filtered_df = df[df['ps'].isin(multiselection)]
-	
+
 	with st.beta_expander('Descriptive Statistics'):
 		st.text(f'Displacement values (mm) of selected points on {selectdate} (n = {len(mapbox_df)})')
 		a1, a2, a3 = st.beta_columns(3)
@@ -83,13 +83,12 @@ def main():
 		st.altair_chart(altHist, use_container_width=True)
 
 	data = go.Scattermapbox(name='', lat=mapbox_df.lat, lon=mapbox_df.lon, 
-		hovertemplate='%{text} mm', 
 		mode='markers',
 		marker=dict(size=msize, opacity=.8, color=mapbox_df.Displacement.values, colorscale=colorscale,
 			colorbar=dict(thicknessmode='pixels', 
 				title=dict(text='Displacement (mm)', side='right'))), 
-		text=mapbox_df.Displacement.values) # , selected=dict(marker=dict(color='rgb(255,0,0)', size=msize, opacity=.8))
-	
+		) # , selected=dict(marker=dict(color='rgb(255,0,0)', size=msize, opacity=.8))
+
 	layout = go.Layout(width=950, height=500, 
 		mapbox = dict(center= dict(lat=(mapbox_df.lat.max() + mapbox_df.lat.min())/2, 
 			lon=(mapbox_df.lon.max() + mapbox_df.lon.min())/2), 
@@ -100,6 +99,12 @@ def main():
 		clickmode='event+select')
 	
 	fig = go.FigureWidget(data=data, layout=layout)
+	
+	hover_text = np.stack((mapbox_df.ps.values, mapbox_df.Displacement.values), axis=1)
+	
+	fig.update_traces(customdata=hover_text,
+						hovertemplate='<b>PS ID</b>: %{customdata[0]}' +\
+							'<br><b>Displacement</b>: %{customdata[1]} mm</br>')
 
 	fig.add_trace(go.Scattermapbox(name='', 
 		lat=filtered_df[filtered_df.Date.isin([selectdate])].lat, 
