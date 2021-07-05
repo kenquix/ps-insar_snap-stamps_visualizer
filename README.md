@@ -4,7 +4,7 @@ A simple web app to visualize the Persistent Scatterers (PS) identified using th
 
 This is inspired by the [StAMPS visualizer based on R](https://forum.step.esa.int/t/stamps-visualizer-snap-stamps-workflow/9613). If you have suggestions on how to improve this, let me know. 
 
-Access the web app [here](https://snap-stamps-visualizer-app.herokuapp.com/).
+Access the web app on [Heroku](https://snap-stamps-visualizer-app.herokuapp.com/) or [Streamlit Share](https://share.streamlit.io/kenquix/ps-insar_snap-stamps_visualizer/main/app.py)
 
 You can run this locally by installing [Anaconda](https://www.anaconda.com/products/individual#download-section). After installing Anaconda, open the **Anaconda command prompt** to create a new virtual environment and install the required libraries.
 
