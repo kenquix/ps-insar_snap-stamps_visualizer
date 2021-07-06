@@ -16,6 +16,4 @@ You can run this locally by installing [Anaconda](https://www.anaconda.com/produ
     
     streamlit run app.py
  
-![image](https://user-images.githubusercontent.com/44670454/122919756-305d3480-d393-11eb-92c6-be8c05c7c586.png)
-![image](https://user-images.githubusercontent.com/44670454/122919805-3eab5080-d393-11eb-82de-5b68e7635a2e.png)
 
