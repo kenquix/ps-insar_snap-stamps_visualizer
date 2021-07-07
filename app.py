@@ -26,29 +26,17 @@ def read_data(fn, n=100):
 	return df
 
 def main():
-	st.header('PS-InSAR SNAP - StAMPS Visualizer')
+	st.header('PS-InSAR SNAP - StAMPS Workflow Visualizer')
 	st.markdown(f"""
 		<p align="justify">A simple web app to visualize the Persistent Scatterers (PS) identified using the
-		<a href=https://forum.step.esa.int/t/snap-stamps-workflow-documentation/13985>SNAP - StAMPS workflow </a>. You can **visualize your own data** by uploading the
+		<a href=https://forum.step.esa.int/t/snap-stamps-workflow-documentation/13985>SNAP - StAMPS workflow </a>. You can <strong>visualize your own data</strong> by uploading the
 		Matlab file <strong>(i.e., <font color="#2D8632">'ps_plot_ts_v-do.mat'</font>)</strong> output from the SNAP-StAMPS workflow.</p>
 		
 		<p align="justify">This is inspired by the <a href=https://forum.step.esa.int/t/stamps-visualizer-snap-stamps-workflow/9613>StAMPS visualizer based on R</a>. If you have 
 		suggestions on how to improve this, just let me know.</p>
 		""", unsafe_allow_html=True)
 
-	st.sidebar.subheader('Customization Panel')
-
-	style_dict = {'Carto-Positron':'carto-positron', 'Openstreetmap':'open-street-map', 'Carto Dark':'carto-darkmatter', 
-		'Stamen Terrain':'stamen-terrain', 'Stamen Toner':'stamen-toner', 'Stamen Watercolor':'stamen-watercolor'}
-
-	style = st.sidebar.selectbox('Select map style', ['Carto-Positron', 'Openstreetmap', 'Carto Dark', 
-		'Stamen Terrain', 'Stamen Toner', 'Stamen Watercolor'], index=2) 
-
-	colorscale = st.sidebar.selectbox('Select color scale', ['Greys','YlGnBu','Greens','YlOrRd','Bluered','RdBu','Reds','Blues','Picnic',
-		'Rainbow','Portland','Jet','Hot','Blackbody','Earth','Electric','Viridis','Cividis'], index=4)
-
-	msize = st.sidebar.slider('Select marker size', min_value=2, max_value=15, value=5, step=1)
-	with st.beta_expander('Control Panel', expanded=True):
+	with st.beta_expander('Data points Control Panel', expanded=True):
 		inputFile = st.file_uploader('Upload a file', type=('mat'))
 
 		a1, a2 = st.beta_columns((5,3))
@@ -70,25 +58,24 @@ def main():
 
 	filtered_df = df[df['ps'].isin(multiselection)]
 
-	with st.beta_expander('Descriptive Statistics'):
-		st.markdown(f'Displacement values (mm) of selected points on **{selectdate}** (n = {len(mapbox_df)})')
-		c1, c2, c3 = st.beta_columns(3)
-		n = st.slider('Select bin width', min_value=1, max_value=10, value=1, help='Adjusts the width of bins. Default: 1 unit')
-		c1.info(f'Highest: {mapbox_df.Displacement.max():0.2f}')
-		c2.info(f'Lowest: {mapbox_df.Displacement.min():0.2f}')
-		c3.info(f'Average: {mapbox_df.Displacement.mean():0.2f}')
-
-		altHist = alt.Chart(mapbox_df).mark_bar().encode(
-			x=alt.X('Displacement:Q', bin=alt.Bin(step=n), title='Displacement (mm)'),
-			y='count()',
-			color=alt.Color('count()', legend=None), # scale=alt.Scale(scheme='Pastel2')
-			tooltip=[alt.Tooltip('count()', format=',.0f', title='Count')])
-
-		st.altair_chart(altHist, use_container_width=True)
-	
-	st.markdown(f"""The map below shows the displacement (in mm) of Persistent Scatterers **{selectdate}**.   
-			Number of selected PS: **{len(multiselection)}** (<font color="#6DD929">green markers</font>)
+	st.markdown(f"""<p align="justify">The map below shows the displacement (in mm) of Persistent Scatterers <strong>{selectdate}</strong>.   
+			Number of selected PS: <strong>{len(multiselection)}</strong> (<font color="#6DD929">green markers</font>).
+			Use the map customization panel to change the appearance of the plots. You can change the color map, 
+			base map and size of the markers.</p>
 			""", unsafe_allow_html=True)
+
+	with st.beta_expander('Map Customization Panel'):
+		m1, m2, m3 = st.beta_columns(3)
+		style_dict = {'Carto-Positron':'carto-positron', 'Openstreetmap':'open-street-map', 'Carto Dark':'carto-darkmatter', 
+			'Stamen Terrain':'stamen-terrain', 'Stamen Toner':'stamen-toner', 'Stamen Watercolor':'stamen-watercolor'}
+
+		style = m1.selectbox('Select map style', ['Carto-Positron', 'Openstreetmap', 'Carto Dark', 
+			'Stamen Terrain', 'Stamen Toner', 'Stamen Watercolor'], index=2) 
+
+		colorscale = m2.selectbox('Select color scale', ['Greys','YlGnBu','Greens','YlOrRd','Bluered','RdBu','Reds','Blues','Picnic',
+			'Rainbow','Portland','Jet','Hot','Blackbody','Earth','Electric','Viridis','Cividis'], index=9)
+
+		msize = m3.slider('Select marker size', min_value=2, max_value=15, value=5, step=1)
 
 	data = go.Scattermapbox(name='', lat=mapbox_df.lat, lon=mapbox_df.lon, 
 		mode='markers',
@@ -121,7 +108,7 @@ def main():
 		text=filters.ps, 
 		mode='markers',
 		hovertemplate='<b>PS ID</b>: %{text} (Selected)', 
-		marker=dict(size=msize+5, color='#57FF76')
+		marker=dict(size=msize+5, color='#AD2C50')
 		))
 
 	st.plotly_chart(fig, use_container_width=True)
@@ -156,8 +143,23 @@ def main():
 
 	st.altair_chart(altC, use_container_width=True)
 
-	st.sidebar.info("""
-		Created by: K. Quisado [Github](https://github.com/kenquix/ps-insar_visualizer)
+	st.markdown(f'Descriptive statistics for the displacement values (mm) of selected points on **{selectdate}** (n = {len(mapbox_df)})')
+	c1, c2, c3 = st.beta_columns(3)
+	n = st.slider('Select bin width', min_value=1, max_value=10, value=1, help='Adjusts the width of bins. Default: 1 unit')
+	c1.info(f'Highest: {mapbox_df.Displacement.max():0.2f}')
+	c2.info(f'Lowest: {mapbox_df.Displacement.min():0.2f}')
+	c3.info(f'Average: {mapbox_df.Displacement.mean():0.2f}')
+
+	altHist = alt.Chart(mapbox_df).mark_bar().encode(
+		x=alt.X('Displacement:Q', bin=alt.Bin(step=n), title='Displacement (mm)'),
+		y='count()',
+		color=alt.Color('count()', legend=None), # scale=alt.Scale(scheme='Pastel2')
+		tooltip=[alt.Tooltip('count()', format=',.0f', title='Count')])
+
+	st.altair_chart(altHist, use_container_width=True)
+	st.info("""
+		Created by: **K. Quisado** [GitHub](https://github.com/kenquix/ps-insar_visualizer) as part of course project on Microwave RS under the MS
+		Geomatics Engineering (Remote Sensing) Program, University of the Philippines - Diliman
 		""")
 
 if __name__ == '__main__':
