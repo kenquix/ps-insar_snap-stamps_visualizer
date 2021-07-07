@@ -139,7 +139,7 @@ def main():
 		color=alt.Color('ps:N', legend=alt.Legend(title="PS ID", orient='bottom')),
 		tooltip=[alt.Tooltip('Date:T'), 
 				alt.Tooltip('Displacement:Q', format=',.2f', title='Disp')]
-				).add_selection(highlight)
+				).add_selection(highlight).interactive(bind_y=False)
 
 	st.altair_chart(altC, use_container_width=True)
 
@@ -154,8 +154,8 @@ def main():
 		x=alt.X('Displacement:Q', bin=alt.Bin(step=n), title='Displacement (mm)'),
 		y='count()',
 		color=alt.Color('count()', legend=None), # scale=alt.Scale(scheme='Pastel2')
-		tooltip=[alt.Tooltip('count()', format=',.0f', title='Count')])
-
+		tooltip=[alt.Tooltip('count()', format=',.0f', title='Count')]).interactive(bind_y=False)
+	st.markdown(f'<center>Distribution of PS displacements (bins = {n})</center>', unsafe_allow_html=True)
 	st.altair_chart(altHist, use_container_width=True)
 	st.info("""
 		Created by: **K. Quisado** [GitHub](https://github.com/kenquix/ps-insar_visualizer) as part of course project on Microwave RS under the MS
