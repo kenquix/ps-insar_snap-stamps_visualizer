@@ -28,12 +28,13 @@ def read_data(fn, n=100):
 def main():
 	st.header('PS-InSAR SNAP - StAMPS Visualizer')
 	st.markdown(f"""
-		A simple web app to visualize the Persistent Scatterers (PS) identified using the [SNAP - StAMPS workflow]
-		(https://forum.step.esa.int/t/snap-stamps-workflow-documentation/13985).
-		You can **visualize your own data** by uploading the Matlab file *(e.g., 'ps_plot_ts_v-do.mat')*. 
+		<p align="justify">A simple web app to visualize the Persistent Scatterers (PS) identified using the
+		<a href=https://forum.step.esa.int/t/snap-stamps-workflow-documentation/13985>SNAP - StAMPS workflow </a>. You can **visualize your own data** by uploading the
+		Matlab file <strong>(i.e., <font color="#2D8632">'ps_plot_ts_v-do.mat'</font>)</strong> output from the SNAP-StAMPS workflow.</p>
 		
-		This is inspired by the [StAMPS visualizer based on R](https://forum.step.esa.int/t/stamps-visualizer-snap-stamps-workflow/9613). If you have suggestions on how to improve this, let me know. 
-		""")
+		<p align="justify">This is inspired by the <a href=https://forum.step.esa.int/t/stamps-visualizer-snap-stamps-workflow/9613>StAMPS visualizer based on R</a>. If you have 
+		suggestions on how to improve this, just let me know.</p>
+		""", unsafe_allow_html=True)
 
 	st.sidebar.subheader('Customization Panel')
 
@@ -53,26 +54,26 @@ def main():
 		a1, a2 = st.beta_columns((5,3))
 		b1, b2 = st.beta_columns((2))
 
-		nmax = a2.number_input('Configure number of points to plot', min_value=100, max_value=50000, value=10000)
-		n = a1.slider('Select number of points to plot', min_value=100, max_value=nmax, value=5000)
+		nmax = a2.number_input('Max points for slider', min_value=10000, max_value=50000, value=10000, help='Adjust the maximum number of points that can be plotted. Range: 10,000-50,000. Default: 10,000')
+		n = a1.slider('Select number of points to plot', min_value=100, max_value=nmax, value=5000, help='Defines the number of points to be plotted. Default: 5,000')
 		
 		if inputFile is None:
 			df = read_data('ps_plot_ts_v-do.mat', n)
 		else:
 			df = read_data(inputFile, n)
 		
-		selectdate = b1.select_slider('Select Date', df.Date.unique().tolist(), value=df.Date.unique().tolist()[3])
+		selectdate = b1.select_slider('Select Date', df.Date.unique().tolist(), value=df.Date.unique().tolist()[3], help='Defines the date to be considered in the plot of PS')
 		mapbox_df = df[df.Date.isin([selectdate])]
 
 		multiselection = b2.multiselect('Select PS by ID', sorted(df.ps.unique().tolist()), 
-			default=df.ps.unique().tolist()[:2])
+			default=df.ps.unique().tolist()[:5], help="Let user select the PS points by ID. Default: 5 PS points (choosen randomly)")
 
 	filtered_df = df[df['ps'].isin(multiselection)]
 
 	with st.beta_expander('Descriptive Statistics'):
 		st.markdown(f'Displacement values (mm) of selected points on **{selectdate}** (n = {len(mapbox_df)})')
 		c1, c2, c3 = st.beta_columns(3)
-		n = st.slider('Select bin width', min_value=1, max_value=10, value=1)
+		n = st.slider('Select bin width', min_value=1, max_value=10, value=1, help='Adjusts the width of bins. Default: 1 unit')
 		c1.info(f'Highest: {mapbox_df.Displacement.max():0.2f}')
 		c2.info(f'Lowest: {mapbox_df.Displacement.min():0.2f}')
 		c3.info(f'Average: {mapbox_df.Displacement.mean():0.2f}')
