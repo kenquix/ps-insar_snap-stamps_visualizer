@@ -94,12 +94,14 @@ def main():
 		clickmode='event+select')
 	
 	fig = go.FigureWidget(data=data, layout=layout)
-	
-	hover_text = np.stack((mapbox_df.ps.values, mapbox_df.Displacement.values), axis=1)
+	hover_text = np.stack((mapbox_df.ps.values, 
+							mapbox_df.Displacement.values, 
+							mapbox_df.Date.values), axis=1)
 
 	fig.update_traces(customdata=hover_text,
 						hovertemplate='<b>PS ID</b>: %{customdata[0]}' +\
-							'<br><b>Displacement</b>: %{customdata[1]} mm</br>')
+							'<br><b>Displacement</b>: %{customdata[1]} mm</br>'+\
+							'<b>Date</b>: %{customdata[2]}')
 
 	filters = filtered_df[filtered_df.Date.isin([selectdate])]
 	fig.add_trace(go.Scattermapbox(name='', 
@@ -117,6 +119,12 @@ def main():
 	if len(multiselection) == 0:
 	    return 
 	st.markdown('---')
+	filters.reset_index(inplace=True, drop=True)
+	filters = filters.rename(columns={'ps': 'PS ID', 'lon':'Longitude', 'lat':'Latitude', 
+						'ave': 'Average Disp'})
+	filters = filters[['PS ID', 'Latitude', 'Longitude', 'Average Disp']]
+	st.markdown(f'<center>Additional information on the selected points (count = {len(multiselection)})</center>', unsafe_allow_html=True)
+	st.table(filters)
 	highlight = alt.selection_single(on='mouseover', fields=['Date'], nearest=True)
 	
 	def to_altair_datetime(dt):
@@ -128,7 +136,7 @@ def main():
 	domain = [to_altair_datetime(df.Date.unique().min() - timedelta(60)), 
 			to_altair_datetime(df.Date.unique().max() + timedelta(120))]
 
-	st.markdown(f"""<center>Time series plot for the selected PS (count: {len(multiselection)})</center>
+	st.markdown(f"""<center>Time series plot of the selected PS (count: {len(multiselection)})</center>
 			""", unsafe_allow_html=True)
 
 	altC = alt.Chart(filtered_df).properties(height=400).mark_line(point=True).encode(
@@ -143,7 +151,7 @@ def main():
 
 	st.altair_chart(altC, use_container_width=True)
 
-	st.markdown(f'Descriptive statistics for the displacement values (mm) of selected points on **{selectdate}** (n = {len(mapbox_df)})')
+	st.markdown(f'Descriptive statistics for displacement values (mm) of selected PS on **{selectdate}** (n = {len(mapbox_df)})')
 	c1, c2, c3 = st.beta_columns(3)
 	n = st.slider('Select bin width', min_value=1, max_value=10, value=1, help='Adjusts the width of bins. Default: 1 unit')
 	c1.info(f'Highest: {mapbox_df.Displacement.max():0.2f}')
