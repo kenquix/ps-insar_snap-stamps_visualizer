@@ -10,6 +10,7 @@ st.set_page_config(page_title='PS-InSAR StAMPS Visualizer', initial_sidebar_stat
 
 @st.cache()
 def read_data(fn, n=100):
+	fn = sorted(fn)
 	mat = scipy.io.loadmat(fn[0])
 	mat1 = scipy.io.loadmat(fn[1])
 	lonlat = np.hsplit(mat['lonlat'], 2)
@@ -39,17 +40,16 @@ def main():
 	st.markdown(f"""
 		<p align="justify">A simple web app to visualize the Persistent Scatterers (PS) identified using the
 		<a href=https://forum.step.esa.int/t/snap-stamps-workflow-documentation/13985>SNAP - StAMPS workflow </a>. You can <strong>visualize your own data</strong> by uploading the
-		Matlab file <strong>(i.e., <font color="#2D8632">'ps_plot_ts_v-do.mat' first then ps_plot_v-do.mat second</font>)</strong> output from the SNAP-StAMPS workflow. Do not upload both files
-		at once.</p>
+		Matlab file <strong>(i.e., <font color="#2D8632">'ps_plot_ts_v-do.mat', ps_plot_v-do.mat</font>)</strong> outputs from the SNAP-StAMPS workflow.</p>
 		
 		<p align="justify">This is inspired by the <a href=https://forum.step.esa.int/t/stamps-visualizer-snap-stamps-workflow/9613>StAMPS visualizer based on R</a>. If you have 
 		suggestions on how to improve this, just let me know.</p>
 		""", unsafe_allow_html=True)
 
 	with st.beta_expander('Data Points Control Panel', expanded=True):
-		inputFile = st.file_uploader('Upload two (2) files here in that order (ps_plot_ts_v-do.mat, \
-		ps_plot_v-do.mat)', type=('mat'), accept_multiple_files=True)
-
+		inputFile = st.file_uploader('Upload two (2) files (ps_plot_ts_v-do.mat, \
+		ps_plot_v-do.mat)', type=('mat'), accept_multiple_files=True, help='Make sure to upload the right files (ps_plot_ts_v-do.mat, ps_plot_v-do.mat) to avoid errors.')
+		
 		a1, a2 = st.beta_columns((5,3))
 		b1, b2 = st.beta_columns((2))
 
@@ -59,8 +59,13 @@ def main():
 		if len(inputFile) == 0:
 			df, bperp_df, slave_days, master_day = read_data(['ps_plot_ts_v-do.mat', 'ps_plot_v-do.mat'], n)
 		else:
-			df, bperp_df, slave_days, master_day = read_data(inputFile, n)
-		
+			try:
+				inputFile = [inputFile[i].name for i in range(2)]
+				df, bperp_df, slave_days, master_day = read_data(inputFile, n)
+			except:
+				st.error('Error: Make sure to upload the correct files: ps_plot_ts_v-do.mat, ps_plot_v-do.mat')
+				# return
+
 		selectdate = b1.select_slider('Select Date', df.Date.unique().tolist(), value=df.Date.unique().tolist()[3], help='Defines the date to be considered in the plot of PS')
 		mapbox_df = df[df.Date.isin([selectdate])]
 
@@ -101,7 +106,7 @@ def main():
 			'Stamen Terrain', 'Stamen Toner', 'Stamen Watercolor'], index=2) 
 
 		colorscale = m2.selectbox('Select color scale', ['Greys','YlGnBu','Greens','YlOrRd','Bluered','RdBu','Reds','Blues','Picnic',
-			'Rainbow','Portland','Jet','Hot','Blackbody','Earth','Electric','Viridis','Cividis'], index=9)
+			'Rainbow','Portland','Jet','Hot','Blackbody','Earth','Electric','Viridis','Cividis'], index=15)
 
 		msize = m3.slider('Select marker size', min_value=2, max_value=15, value=5, step=1)
 
@@ -118,7 +123,7 @@ def main():
 
 	data = go.Scattermapbox(name='', lat=mapbox_df.lat, lon=mapbox_df.lon, 
 		mode='markers',
-		marker=dict(size=msize, opacity=.8, color=colr, colorscale=colorscale,
+		marker=dict(size=msize, opacity=.8, color=colr, colorscale=colorscale, cmid=0,
 			colorbar=dict(thicknessmode='pixels', 
 				title=dict(text=f'{txt}LOS Displacement (mm{txt1})', side='right'))), 
 		) # , selected=dict(marker=dict(color='rgb(255,0,0)', size=msize, opacity=.8))
@@ -148,7 +153,7 @@ def main():
 		text=filters.ps, 
 		mode='markers',
 		hovertemplate='<b>PS ID</b>: %{text} (Selected)', 
-		marker=dict(size=msize+5, color='#AD2C50')
+		marker=dict(size=msize+5, color='#51ED5A')
 		))
 
 	st.plotly_chart(fig, use_container_width=True)
@@ -187,7 +192,7 @@ def main():
 		tooltip=[alt.Tooltip('Date:T'), 
 				alt.Tooltip('Displacement:Q', format=',.2f', title='Disp')]
 				).add_selection(highlight).interactive(bind_y=False)
-
+	
 	st.altair_chart(altC, use_container_width=True)
 
 	st.markdown(f'Descriptive statistics for displacement values (mm) of selected PS on **{selectdate}** (n = {len(mapbox_df)})')
