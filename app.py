@@ -64,7 +64,7 @@ def main():
 				df, bperp_df, slave_days, master_day = read_data(inputFile, n)
 			except:
 				st.error('Error: Make sure to upload the correct files: ps_plot_ts_v-do.mat, ps_plot_v-do.mat')
-				# return
+				return
 
 		selectdate = b1.select_slider('Select Date', df.Date.unique().tolist(), value=df.Date.unique().tolist()[3], help='Defines the date to be considered in the plot of PS')
 		mapbox_df = df[df.Date.isin([selectdate])]
