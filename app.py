@@ -1,3 +1,4 @@
+from altair.vegalite.v4.schema.core import Vector2boolean
 import streamlit as st
 import scipy.io
 import pandas as pd
@@ -91,10 +92,9 @@ def main():
 
 		st.altair_chart(bperp_chart, use_container_width=True)
 
-	st.markdown(f"""<p align="justify">The map below shows the displacement (in mm) of Persistent Scatterers <strong>{selectdate}</strong>.   
-			Number of selected PS: <strong>{len(multiselection)}</strong> (<font color="#6DD929">green markers</font>).
-			Use the map customization panel to change the appearance of the plots. You can change the color map, 
-			base map and size of the markers.</p>
+	st.markdown(f"""<p align="justify">Number of selected PS: <strong>{len(multiselection)}</strong> (<font color="#6DD929">green markers</font>).
+			<br>Use the map customization panel to change the appearance of the plots. You can change the color scale, 
+			base map style and/or the size of the markers.</p>
 			""", unsafe_allow_html=True)
 
 	with st.beta_expander('Map Customization Panel'):
@@ -113,17 +113,21 @@ def main():
 	mean_los = st.checkbox('Click to plot mean LOS Displacement')
 
 	if mean_los:
-		colr = mapbox_df.ave.values
+		colr = mapbox_df.ave
 		txt = 'Mean '
 		txt1 = '/yr'
+		histX = 'ave'
+		velocity = ' Velocity'
 	else:
-		colr = mapbox_df.Displacement.values
+		colr = mapbox_df.Displacement
 		txt = ''
 		txt1 = ''
+		histX = 'Displacement'
+		velocity = ''
 
 	data = go.Scattermapbox(name='', lat=mapbox_df.lat, lon=mapbox_df.lon, 
 		mode='markers',
-		marker=dict(size=msize, opacity=.8, color=colr, colorscale=colorscale, cmid=0,
+		marker=dict(size=msize, opacity=.8, color=colr.values, colorscale=colorscale, cmid=0,
 			colorbar=dict(thicknessmode='pixels', 
 				title=dict(text=f'{txt}LOS Displacement (mm{txt1})', side='right'))), 
 		) # , selected=dict(marker=dict(color='rgb(255,0,0)', size=msize, opacity=.8))
@@ -139,7 +143,7 @@ def main():
 	
 	fig = go.FigureWidget(data=data, layout=layout)
 	hover_text = np.stack((mapbox_df.ps.values, 
-							colr, 
+							colr.values, 
 							mapbox_df.Date.values), axis=1)
 
 	fig.update_traces(customdata=hover_text,
@@ -195,20 +199,21 @@ def main():
 	
 	st.altair_chart(altC, use_container_width=True)
 
-	st.markdown(f'Descriptive statistics for displacement values (mm) of selected PS on **{selectdate}** (n = {len(mapbox_df)})')
+	st.markdown(f'Descriptive statistics for {txt}PS displacement{velocity} (mm{txt1}) of selection (n = {len(mapbox_df)}).')
 	c1, c2, c3 = st.beta_columns(3)
 	n = st.slider('Select bin width', min_value=1, max_value=10, value=1, help='Adjusts the width of bins. Default: 1 unit')
-	c1.info(f'Highest: {mapbox_df.Displacement.max():0.2f}')
-	c2.info(f'Lowest: {mapbox_df.Displacement.min():0.2f}')
-	c3.info(f'Average: {mapbox_df.Displacement.mean():0.2f}')
+	c1.info(f'Highest: {colr.max():0.2f}')
+	c2.info(f'Lowest: {colr.min():0.2f}')
+	c3.info(f'Average: {colr.mean():0.2f}')
 
 	altHist = alt.Chart(mapbox_df).mark_bar().encode(
-		x=alt.X('Displacement:Q', bin=alt.Bin(step=n), title='Displacement (mm)'),
+		x=alt.X(f'{histX}:Q', bin=alt.Bin(step=n), title=f'{txt}Displacement (mm{txt1})'),
 		y='count()',
 		color=alt.Color('count()', legend=alt.Legend(title='Count', orient='top-left'), scale=alt.Scale(scheme='Redblue')), # )
 		tooltip=[alt.Tooltip('count()', format=',.0f', title='Count', bin={'binned':True, 'step':int(f'{n}')})]).interactive(bind_y=False)
-	st.markdown(f'<center>Distribution of PS displacements (bins = {n})</center>', unsafe_allow_html=True)
+	st.markdown(f'<center>Distribution of PS Displacement{velocity} (bins = {n})</center>', unsafe_allow_html=True)
 	st.altair_chart(altHist, use_container_width=True)
+	st.markdown('---')
 	st.info("""
 		Created by: **K. Quisado** [GitHub](https://github.com/kenquix/ps-insar_visualizer) as part of course project on Microwave RS under the MS
 		Geomatics Engineering (Remote Sensing) Program, University of the Philippines - Diliman
