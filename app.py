@@ -47,12 +47,12 @@ def main():
 		suggestions on how to improve this, just let me know.</p>
 		""", unsafe_allow_html=True)
 
-	with st.beta_expander('Data Points Control Panel', expanded=True):
+	with st.expander('Data Points Control Panel', expanded=True):
 		inputFile = st.file_uploader('Upload two (2) files (ps_plot_ts_v-do.mat, \
 		ps_plot_v-do.mat)', type=('mat'), accept_multiple_files=True, help='Make sure to upload the right files (ps_plot_ts_v-do.mat, ps_plot_v-do.mat) to avoid errors.')
 		
-		a1, a2 = st.beta_columns((5,3))
-		b1, b2 = st.beta_columns((2))
+		a1, a2 = st.columns((5,3))
+		b1, b2 = st.columns((2))
 
 		nmax = a2.number_input('Max points for slider', min_value=10000, max_value=50000, value=10000, help='Adjust the maximum number of points that can be plotted. Range: 10,000-50,000. Default: 10,000')
 		n = a1.slider('Select number of points to plot', min_value=100, max_value=nmax, value=5000, help='Defines the number of points to be plotted. Default: 5,000')
@@ -76,8 +76,8 @@ def main():
 	filtered_df = df[df['ps'].isin(multiselection)]
 
 	md = date(1,1,1) + timedelta(int(master_day[0])) - timedelta(367)
-	with st.beta_expander('Metadata'):
-		a1, a2 = st.beta_columns((2))
+	with st.expander('Metadata'):
+		a1, a2 = st.columns((2))
 		a1.info(f'Master Date: {md}')
 		a2.info(f'Number of slave images: {len(slave_days)}')
 		bperp_chart = alt.Chart(bperp_df).mark_circle(size=72).encode(
@@ -97,8 +97,8 @@ def main():
 			base map style and/or the size of the markers.</p>
 			""", unsafe_allow_html=True)
 
-	with st.beta_expander('Map Customization Panel'):
-		m1, m2, m3 = st.beta_columns(3)
+	with st.expander('Map Customization Panel'):
+		m1, m2, m3 = st.columns(3)
 		style_dict = {'Carto-Positron':'carto-positron', 'Openstreetmap':'open-street-map', 'Carto Dark':'carto-darkmatter', 
 			'Stamen Terrain':'stamen-terrain', 'Stamen Toner':'stamen-toner', 'Stamen Watercolor':'stamen-watercolor'}
 
@@ -200,7 +200,7 @@ def main():
 	st.altair_chart(altC, use_container_width=True)
 
 	st.markdown(f'Descriptive statistics for {txt}PS displacement{velocity} (mm{txt1}) of selection (n = {len(mapbox_df)}).')
-	c1, c2, c3 = st.beta_columns(3)
+	c1, c2, c3 = st.columns(3)
 	n = st.slider('Select bin width', min_value=1, max_value=10, value=1, help='Adjusts the width of bins. Default: 1 unit')
 	c1.info(f'Highest: {colr.max():0.2f}')
 	c2.info(f'Lowest: {colr.min():0.2f}')
